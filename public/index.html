@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Daily Tasks</title>
+  <meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151517" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tasks">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon-192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Sign in -->
+  <section id="login" class="screen" hidden>
+    <form id="login-form" class="login-card">
+      <img src="/icon-192.png" alt="" width="64" height="64">
+      <h1>Daily Tasks</h1>
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button class="primary" type="submit">Sign in</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Main -->
+  <section id="main" class="screen" hidden>
+    <header class="top">
+      <button class="icon-btn" id="prev-day" aria-label="Previous day">&#8249;</button>
+      <div class="day">
+        <div id="day-label" class="day-label"></div>
+        <button id="today-btn" class="link" hidden>Back to today</button>
+      </div>
+      <button class="icon-btn" id="next-day" aria-label="Next day">&#8250;</button>
+      <button class="icon-btn" id="settings-btn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Zm7.43-2.53a7.8 7.8 0 0 0 0-1.94l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a7.3 7.3 0 0 0-1.68-.98l-.38-2.65A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.5.42l-.38 2.65c-.6.25-1.17.58-1.68.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65a7.8 7.8 0 0 0 0 1.94l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.13.22.39.3.61.22l2.49-1c.51.4 1.08.73 1.68.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.6-.25 1.17-.58 1.68-.98l2.49 1c.22.08.48 0 .61-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z"/></svg>
+      </button>
+    </header>
+
+    <div id="notify-banner" class="banner" hidden></div>
+
+    <div id="summary" class="summary"></div>
+    <ol id="task-list" class="tasks"></ol>
+    <div id="empty" class="empty" hidden>
+      <p>Nothing planned for this day.</p>
+      <button class="primary" data-action="add">Add a task</button>
+    </div>
+
+    <button id="add-btn" class="fab" aria-label="Add task" data-action="add">+</button>
+  </section>
+
+  <!-- Task editor -->
+  <dialog id="editor" class="sheet">
+    <form id="task-form" method="dialog">
+      <div class="sheet-head">
+        <button type="button" class="link" data-close>Cancel</button>
+        <h2 id="editor-title">New task</h2>
+        <button type="submit" class="link strong">Save</button>
+      </div>
+      <label class="field">
+        <span>Task</span>
+        <input name="title" required maxlength="120" placeholder="Unload the dishwasher" autocomplete="off">
+      </label>
+      <div class="row">
+        <label class="field">
+          <span>Start time</span>
+          <input name="start" type="time" required>
+        </label>
+        <label class="field">
+          <span>Estimated minutes</span>
+          <input name="duration" type="number" inputmode="numeric" min="1" max="1440" required>
+        </label>
+      </div>
+      <div class="chips" id="duration-chips">
+        <button type="button" data-min="5">5m</button>
+        <button type="button" data-min="10">10m</button>
+        <button type="button" data-min="15">15m</button>
+        <button type="button" data-min="30">30m</button>
+        <button type="button" data-min="45">45m</button>
+        <button type="button" data-min="60">1h</button>
+        <button type="button" data-min="90">1½h</button>
+      </div>
+      <fieldset class="field">
+        <span>Repeat</span>
+        <div class="chips days" id="day-chips">
+          <button type="button" data-day="1">Mon</button>
+          <button type="button" data-day="2">Tue</button>
+          <button type="button" data-day="3">Wed</button>
+          <button type="button" data-day="4">Thu</button>
+          <button type="button" data-day="5">Fri</button>
+          <button type="button" data-day="6">Sat</button>
+          <button type="button" data-day="0">Sun</button>
+        </div>
+        <div class="chips">
+          <button type="button" data-preset="none">Just once</button>
+          <button type="button" data-preset="all">Every day</button>
+          <button type="button" data-preset="weekdays">Weekdays</button>
+        </div>
+        <small id="repeat-hint" class="hint"></small>
+      </fieldset>
+      <label class="field">
+        <span>Notes</span>
+        <textarea name="notes" rows="2" maxlength="1000" placeholder="Optional"></textarea>
+      </label>
+      <p id="editor-error" class="error" role="alert"></p>
+      <button type="button" id="delete-btn" class="danger" hidden>Delete task</button>
+    </form>
+  </dialog>
+
+  <!-- Settings -->
+  <dialog id="settings" class="sheet">
+    <div class="sheet-head">
+      <span></span>
+      <h2>Settings</h2>
+      <button type="button" class="link strong" data-close>Done</button>
+    </div>
+    <div class="settings-body">
+      <h3>Reminders</h3>
+      <p id="push-status" class="muted"></p>
+      <button id="enable-push" class="primary">Turn on notifications</button>
+      <button id="test-push" class="secondary">Send a test notification</button>
+      <p id="nudge-rules" class="muted small"></p>
+      <h3>Lock screen widget</h3>
+      <p class="muted small">Copy this link into the Scriptable widget script. It can only read today's tasks.</p>
+      <button id="copy-widget" class="secondary">Copy widget link</button>
+      <h3>Account</h3>
+      <button id="logout" class="secondary">Sign out</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
